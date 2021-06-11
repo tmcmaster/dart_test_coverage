@@ -1,0 +1,35 @@
+#!/bin/sh
+
+if [ ! -f "pubspec.yaml" ];
+then
+  echo "Run from the project directory.";
+  exit 1;
+fi
+
+APP_DIR=$(dirname $(dirname $(which dart_test_coverage)));
+CSS_FILE=${APP_DIR}/include/coverage.css
+
+## TODO: need to read this from the pubspec.yaml file
+PACKAGE_NAME=$(grep  '^name:[\s+]*' pubspec.yaml |sed 's/\:[ ]*/\|/g' |cut -f2 -d \|);
+
+LCOV_FILE="coverage/riverpod_test_lcov.info";
+
+## Create a file to make sure all of the dart files are picked up by the test coverage.
+FILE=test/coverage_helper_test.dart
+find lib -not -name '*.g.dart' -not -name '*.freezed.dart' -and -name '*.dart' |awk -v prefix="package:${PACKAGE_NAME}" -F'lib/' '{printf "import '\''%s/%s'\'';\n", prefix, $2}' > $FILE
+echo "void main(){}" >> $FILE
+
+# Run the test coverage
+dart run test_cov
+
+# Strip out coverage data for generated classes
+lcov --remove "coverage/lcov.info" '**/coverage_helper_test.dart' '**/*.g.dart' '**/*.freezed.dart' -o "${LCOV_FILE}"
+
+# Generate an HTML version of the test coverage data
+genhtml -o coverage/html  --legend --css-file ${CSS_FILE} --title "${PACKAGE_NAME}" "${LCOV_FILE}"
+
+if [ "$1" == "--view" ];
+then
+  # View the test coverage report
+  open ./coverage/html/index.html
+fi

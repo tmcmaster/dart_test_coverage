@@ -1,0 +1,6 @@
+.idea
+.dart_tool/
+coverage/
+.test_cov.dart
+.packages
+coverage_helper_test.dart

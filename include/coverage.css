@@ -249,6 +249,7 @@ td.coverPerLo
   padding-left: 10px;
   padding-right: 10px;
   background-color: #FF0000;
+  color: white;
   font-weight: bold;
   font-family: sans-serif;
 }
@@ -498,6 +499,7 @@ span.coverLegendCovLo
   padding-right: 10px;
   padding-top: 2px;
   background-color: #FF0000;
+  color: white;
 }
 
 /* All views except source code view: legend format for med coverage */

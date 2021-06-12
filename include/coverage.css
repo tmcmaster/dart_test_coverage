@@ -120,6 +120,7 @@ td.headerCovTableEntryLo
   padding-left: 12px;
   padding-right: 4px;
   background-color: #FF0000;
+  color: white;
 }
 
 /* All views: header legend value for legend entry */
@@ -262,6 +263,7 @@ td.coverNumLo
   padding-left: 10px;
   padding-right: 10px;
   background-color: #FF0000;
+  color: white;
   white-space: nowrap;
   font-family: sans-serif;
 }

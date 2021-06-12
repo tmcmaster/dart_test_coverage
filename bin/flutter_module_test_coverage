@@ -41,10 +41,10 @@ echo "void main(){}" >> "$FILE"
 flutter test --coverage-path "coverage/${MODULE}/lcov.info" --coverage "test/modules/${MODULE}/"
 
 # Strip out coverage data for generated classes
-lcov --remove "coverage/${MODULE}/lcov.info" '**/*.g.dart' '**/*.freezed.dart' -o "coverage/${MODULE}/lcov_clean.info"
+lcov --quiet --remove "coverage/${MODULE}/lcov.info" '**/*.g.dart' '**/*.freezed.dart' -o "coverage/${MODULE}/lcov_clean.info"
 
 # Generate an HTML version of the test coverage data
-genhtml --legend --css-file "${CSS_FILE}" --title "${MODULE}" -o "coverage/${MODULE}/html" "coverage/${MODULE}/lcov_clean.info"
+genhtml --quiet --legend --css-file "${CSS_FILE}" --title "${MODULE}" -o "coverage/${MODULE}/html" "coverage/${MODULE}/lcov_clean.info"
 
 if [ "$2" == "--view" ];
 then

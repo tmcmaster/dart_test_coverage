@@ -25,10 +25,10 @@ echo "void main(){}" >> "$FILE"
 flutter test --coverage-path "coverage/all/lcov.info" --coverage "test"
 
 # Strip out coverage data for generated classes
-lcov --remove "coverage/all/lcov.info" 'lib/modules/first_poc' '**/coverage_helper_test.dart' '**/*.g.dart' '**/*.freezed.dart' -o "coverage/all/lcov_clean.info"
+lcov --quiet --remove "coverage/all/lcov.info" 'lib/modules/first_poc' '**/coverage_helper_test.dart' '**/*.g.dart' '**/*.freezed.dart' -o "coverage/all/lcov_clean.info"
 
 # Generate an HTML version of the test coverage data
-genhtml --legend --css-file "${CSS_FILE}" --title "${MODULE}" -o "coverage/all/html" "coverage/all/lcov_clean.info"
+genhtml --quiet --legend --css-file "${CSS_FILE}" --title "${MODULE}" -o "coverage/all/html" "coverage/all/lcov_clean.info"
 
 # View the test coverage report
 open ./coverage/all/html/index.html

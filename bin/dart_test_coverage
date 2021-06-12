@@ -26,10 +26,10 @@ LCOV_FILE="coverage/riverpod_test_lcov.info";
 dart run test_cov
 
 # Strip out coverage data for generated classes
-lcov --remove "coverage/lcov.info" '**/coverage_helper_test.dart' '**/*.g.dart' '**/*.freezed.dart' -o "${LCOV_FILE}"
+lcov --quiet --remove "coverage/lcov.info" '**/coverage_helper_test.dart' '**/*.g.dart' '**/*.freezed.dart' -o "${LCOV_FILE}"
 
 # Generate an HTML version of the test coverage data
-genhtml -o coverage/html  --legend --css-file ${CSS_FILE} --title "${PACKAGE_NAME}" "${LCOV_FILE}"
+genhtml --quiet -o coverage/html  --legend --css-file ${CSS_FILE} --title "${PACKAGE_NAME}" "${LCOV_FILE}"
 
 if [ "$1" == "--view" ];
 then

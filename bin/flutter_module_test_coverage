@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 
 # the module that is to be tested,
 MODULE=$1

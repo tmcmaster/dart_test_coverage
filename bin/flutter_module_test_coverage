@@ -1,0 +1,54 @@
+#!/bin/sh -x
+
+# the module that is to be tested,
+MODULE=$1
+VIEW=$2
+
+if [ ! -f "pubspec.yaml" ];
+then
+  echo "Run from the project directory.";
+  exit 1;
+fi
+
+APP_DIR=$(dirname $(dirname $(which $(basename "$0"))));
+CSS_FILE=${APP_DIR}/include/coverage.css
+
+# Check that a module name has been supplied
+if [ -z ${MODULE} ]; then
+  MODULE_LIST=$(ls -1 test/modules| paste -sd "|" - |sed 's/\|/ \| /g');
+  echo "generate-coverage.sh [ ${MODULE_LIST} ]";
+  exit 1;
+fi
+
+# Check that the module can be found
+if [ ! -d "lib/modules/${MODULE}" ]; then
+  echo "Could not find module: ${MODULE}";
+  exit 2;
+fi
+
+PACKAGE_NAME=$(grep  '^name:[\s+]*' pubspec.yaml |sed 's/\:[ ]*/\|/g' |cut -f2 -d \|);
+IGNORE_COMMENT="// ignore: unused_import";
+FILE=test/modules/${MODULE}/coverage_helper_test.dart
+
+# Create a file to make sure all of the dart files are picked up by the test coverage.
+(echo "// Helper file to make coverage work for all dart files", echo "// ignore_for_file: unused_import") > "$FILE";
+find "lib/modules/${MODULE}" -not -name '*.g.dart' -not -name '*.freezed.dart' -and -name '*.dart' \
+  | awk -v ignore="${IGNORE_COMMENT}" -v prefix="package:foodjitsu" -F'lib/' \
+  '{printf "import '\''%s/%s'\''; %s\n", prefix, $2, ignore}' >> "$FILE"
+echo "void main(){}" >> "$FILE"
+
+# Run the test coverage
+flutter test --coverage-path "coverage/${MODULE}/lcov.info" --coverage "test/modules/${MODULE}/"
+
+# Strip out coverage data for generated classes
+lcov --remove "coverage/${MODULE}/lcov.info" '**/*.g.dart' '**/*.freezed.dart' -o "coverage/${MODULE}/lcov_clean.info"
+
+# Generate an HTML version of the test coverage data
+genhtml --legend --css-file "${CSS_FILE}" --title "${MODULE}" -o "coverage/${MODULE}/html" "coverage/${MODULE}/lcov_clean.info"
+
+if [ "$2" == "--view" ];
+then
+    # View the test coverage report
+  # View the test coverage report
+  open "./coverage/${MODULE}/html/index.html"
+fi

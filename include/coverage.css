@@ -401,6 +401,7 @@ td.lineNoCov,
 span.lineNoCov
 {
   background-color: #FF6230;
+  color: white
 }
 
 /* Source code view: format for NoCov legend */

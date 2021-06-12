@@ -1,0 +1,34 @@
+#!/bin/sh
+
+if [ ! -f "pubspec.yaml" ];
+then
+  echo "Run from the project directory.";
+  exit 1;
+fi
+
+APP_DIR=$(dirname $(dirname $(which $(basename "$0"))));
+CSS_FILE=${APP_DIR}/include/coverage.css
+
+PACKAGE_NAME=$(grep  '^name:[\s+]*' pubspec.yaml |sed 's/\:[ ]*/\|/g' |cut -f2 -d \|);
+IGNORE_COMMENT="// ignore: unused_import";
+FILE=test/coverage_helper_test.dart
+
+# Create a file to make sure all of the dart files are picked up by the test coverage.
+(echo "// Helper file to make coverage work for all dart files", echo "// ignore_for_file: unused_import") > "$FILE";
+find "lib/modules" -not -name '*.g.dart' -not -name '*.freezed.dart' -and -name '*.dart' \
+  | grep -v 'first_poc' \
+  | awk -v ignore="${IGNORE_COMMENT}" -v prefix="package:foodjitsu" -F'lib/' \
+  '{printf "import '\''%s/%s'\''; %s\n", prefix, $2, ignore}' >> "$FILE"
+echo "void main(){}" >> "$FILE"
+
+# Run the test coverage
+flutter test --coverage-path "coverage/all/lcov.info" --coverage "test"
+
+# Strip out coverage data for generated classes
+lcov --remove "coverage/all/lcov.info" 'lib/modules/first_poc' '**/coverage_helper_test.dart' '**/*.g.dart' '**/*.freezed.dart' -o "coverage/all/lcov_clean.info"
+
+# Generate an HTML version of the test coverage data
+genhtml --legend --css-file "${CSS_FILE}" --title "${MODULE}" -o "coverage/all/html" "coverage/all/lcov_clean.info"
+
+# View the test coverage report
+open ./coverage/all/html/index.html

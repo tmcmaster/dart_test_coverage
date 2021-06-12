@@ -6,20 +6,21 @@ then
   exit 1;
 fi
 
-APP_DIR=$(dirname $(dirname $(which dart_test_coverage)));
+APP_DIR=$(dirname $(dirname $(which $(basename "$0"))));
 CSS_FILE=${APP_DIR}/include/coverage.css
 
-## TODO: need to read this from the pubspec.yaml file
 PACKAGE_NAME=$(grep  '^name:[\s+]*' pubspec.yaml |sed 's/\:[ ]*/\|/g' |cut -f2 -d \|);
-
 IGNORE_COMMENT="// ignore: unused_import";
-
-LCOV_FILE="coverage/riverpod_test_lcov.info";
+FILE=test/coverage_helper_test.dart
 
 ## Create a file to make sure all of the dart files are picked up by the test coverage.
-FILE=test/coverage_helper_test.dart
-find lib -not -name '*.g.dart' -not -name '*.freezed.dart' -and -name '*.dart' |awk -v ignore="${IGNORE_COMMENT}" -v prefix="package:${PACKAGE_NAME}" -F'lib/' '{printf "import '\''%s/%s'\''; %s\n", prefix, $2, ignore}' > $FILE
+(echo "// Helper file to make coverage work for all dart files", echo "// ignore_for_file: unused_import") > "$FILE";
+find lib -not -name '*.g.dart' -not -name '*.freezed.dart' -and -name '*.dart' \
+  |awk -v ignore="${IGNORE_COMMENT}" -v prefix="package:${PACKAGE_NAME}" -F'lib/' \
+      '{printf "import '\''%s/%s'\''; %s\n", prefix, $2, ignore}' >> $FILE
 echo "void main(){}" >> $FILE
+
+LCOV_FILE="coverage/riverpod_test_lcov.info";
 
 # Run the test coverage
 dart run test_cov

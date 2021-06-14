@@ -13,11 +13,18 @@ PACKAGE_NAME=$(grep  '^name:[\s+]*' pubspec.yaml |sed 's/\:[ ]*/\|/g' |cut -f2 -
 IGNORE_COMMENT="// ignore: unused_import";
 FILE=test/coverage_helper_test.dart
 
+if [ -d "lib/modules" ];
+then
+  LIB_DIR="lib/modules";
+else
+  LIB_DIR="lib";
+fi
+
 # Create a file to make sure all of the dart files are picked up by the test coverage.
 (echo "// Helper file to make coverage work for all dart files", echo "// ignore_for_file: unused_import") > "$FILE";
-find "lib/modules" -not -name '*.g.dart' -not -name '*.freezed.dart' -and -name '*.dart' \
+find "$LIB_DIR" -mindepth 1 -not -name '*.g.dart' -not -name '*.freezed.dart' -and -name '*.dart' \
   | grep -v 'first_poc' \
-  | awk -v ignore="${IGNORE_COMMENT}" -v prefix="package:foodjitsu" -F'lib/' \
+  | awk -v ignore="${IGNORE_COMMENT}" -v prefix="package:${PACKAGE_NAME}" -F'lib/' \
   '{printf "import '\''%s/%s'\''; %s\n", prefix, $2, ignore}' >> "$FILE"
 echo "void main(){}" >> "$FILE"
 
@@ -30,5 +37,8 @@ lcov --quiet --remove "coverage/all/lcov.info" 'lib/modules/first_poc' '**/cover
 # Generate an HTML version of the test coverage data
 genhtml --quiet --legend --css-file "${CSS_FILE}" --title "${MODULE}" -o "coverage/all/html" "coverage/all/lcov_clean.info"
 
-# View the test coverage report
-open ./coverage/all/html/index.html
+if [ "$1" == "--view" ];
+then
+  # View the test coverage report
+  open ./coverage/all/html/index.html
+fi

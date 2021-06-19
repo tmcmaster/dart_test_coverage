@@ -22,5 +22,6 @@ mv "test/${TEMPLATE_NAME}_test.dart" "test/${PACKAGE_NAME}_test.dart";
 
 grep -rl "${TEMPLATE_NAME}" * |xargs perl -spi -e "s/${TEMPLATE_NAME}/${PACKAGE_NAME}/g";
 
+flutter create .
 flutter pub get;
 flutter test;

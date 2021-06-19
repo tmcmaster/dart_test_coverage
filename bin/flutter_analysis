@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ ! -f pubspec.yaml ];
+then
+  echo "Run from the main Flutter Package directory.";
+  exit 1;
+fi
+
+if [ ! -d "coverage/analysis" ];
+then
+  mkdir -p "coverage/analysis";
+fi
+
+pana --json > "coverage/analysis/pana_analysis_results.json";
